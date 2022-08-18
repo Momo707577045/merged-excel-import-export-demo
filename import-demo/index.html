@@ -1,0 +1,327 @@
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+    content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <meta name="author" content="毛静文,Momo">
+  <meta name="keywords" content="Excel 复杂表头导入解析,毛静文的博客,Momo's Blog">
+  <meta name="description" content="Excel 复杂表头解析,解析合并单元格表头,合并单元格解析,多级表头解析">
+  <title>Excel 复杂表头导入解析示例</title>
+  <style>
+    /*全局设置*/
+    * {
+      user-select: none;
+    }
+
+    body::-webkit-scrollbar {
+      display: none
+    }
+
+    body,
+    html {
+      height: 100%;
+      text-align: center;
+    }
+
+    #app {
+      display: inline-block;
+      padding: 10px 30px 30px;
+      max-width: 1800px;
+      text-align: center;
+      overflow: scroll;
+      width: 100%;
+      height: 100%;
+    }
+
+    #app::-webkit-scrollbar {
+      width: 0;
+    }
+
+    [v-cloak] {
+      display: none !important;
+    }
+
+    .button {
+      position: relative;
+      display: inline-block;
+      padding: 4px 8px;
+      font-size: 14px;
+      color: white;
+      cursor: pointer;
+      opacity: 1;
+      border-radius: 4px;
+      border: 1px solid #eeeeee;
+      background-color: #3D8AC7;
+      transition: 0.3s all;
+    }
+
+    .button:hover {
+      opacity: 0.9;
+    }
+
+    .tips {
+      text-align: left;
+      font-weight: bold;
+    }
+
+    .title {
+      max-width: 1100px;
+      width: 100%;
+      height: 60px;
+      line-height: 60px;
+      font-size: 34px;
+      text-align: center;
+      font-weight: bold;
+    }
+
+    /* 输入界面 */
+    .input-content {
+      height: calc(100% - 60px);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* 顶部示例按钮 */
+    .input-content .top {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .input-content .top .button {
+      margin-left: 10px;
+    }
+
+    /* 中部内容栏 */
+    .input-content .middle {
+      flex: 1;
+      margin-top: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+    }
+
+
+    .input-content .middle .space {
+      margin: 0 20px;
+      position: relative;
+      vertical-align: top;
+      width: 5px;
+      height: calc(100vh - 400px);
+      transform-origin: top;
+      background-repeat: repeat;
+    }
+
+    /* map 映射表输入 */
+    .input-content .map-textarea,
+    .input-content .excel-input {
+      width: 100%;
+      height: 100%;
+    }
+
+    .input-content .map-textarea textarea {
+      width: 100%;
+      height: calc(100% - 30px);
+      border-color: #cccccc;
+      border-radius: 4px;
+      resize: none;
+      white-space: pre;
+    }
+
+    .input-content .excel-input .button {
+      position: relative;
+      top: 40%;
+      transform: translateY(-50%);
+    }
+
+    .input-content .excel-input label {
+      display: block;
+      padding: 10px 26px;
+      font-size: 24px;
+    }
+
+    .input-content .excel-input input {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      cursor: pointer;
+    }
+
+    /* 输出结果 */
+    .output-content .textarea-item-group {
+      display: flex;
+      height: 500px;
+      justify-content: space-between;
+    }
+
+    .output-content .textarea-item-group .textarea-item {
+      width: 33%;
+    }
+
+    .output-content .textarea-item .tips {
+      padding: 10px 0 6px;
+    }
+
+    .output-content .textarea-item textarea {
+      width: 100%;
+      height: 100%;
+      border-color: #cccccc;
+      border-radius: 4px;
+      resize: none;
+      white-space: pre;
+    }
+  </style>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ant-design-vue@3.2.10/dist/antd.css">
+</head>
+
+<body>
+  <section id="app">
+    <section class="title">Excel 复杂表头导入解析示例</section>
+    <!-- 数据输入面板 -->
+    <div class="input-content" v-if="dataSource.length === 0">
+      <div class="top">
+        <div class="tips">0: 如需快速测试可行性，可点击右侧示例按钮，快速获取测试数据</div>
+        <div>
+          <div class="button" v-for="example in examples" @click="setExample(example)">
+            {{ example.title }}
+          </div>
+        </div>
+      </div>
+      <div class="middle">
+        <div class="map-textarea">
+          <div class="tips">1: 输入「Excel 表头结构字符串」与「目标数据结构 key」之间的映射关系</div>
+          <textarea :placeholder="`如：\r\b ${JSON.stringify(examples[2].textKeyMap, null, 4)}`"
+            v-model="textKeyMapStr"></textarea>
+        </div>
+        <div class="space"></div>
+        <div class="excel-input">
+          <div class="tips">2: 上传对应需要解析的 Excel 文件 </div>
+          <div class="button">
+            <label>点击，上传对应 Excel 文件</label>
+            <input type="file" @change="handleChange" accept=".xls,.xlsx">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Excel 数据导入后的展示面板 -->
+    <div class="output-content" v-else>
+      <a-table class="table" :data-source="dataSource" :columns="columns" :pagination="false" :bordered="true">
+      </a-table>
+      <div class="textarea-item-group">
+        <div class="textarea-item">
+          <div class="tips">解析后的 antdv columns 表格列的配置</div>
+          <textarea disabled>{{ JSON.stringify(columns, null, 4) }}</textarea>
+        </div>
+        <div class="textarea-item">
+          <div class="tips">解析后的 antdv dataSource 表格数据</div>
+          <textarea disabled>{{ JSON.stringify(dataSource, null, 4) }}</textarea>
+        </div>
+        <div class="textarea-item">
+          <div class="tips">解析后的目标数据结构数组</div>
+          <textarea disabled>{{ JSON.stringify(resultData, null, 4) }}</textarea>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- vue3 库 -->
+  <script src="https://upyun.luckly-mjw.cn/lib/vue3.global.min.js"></script>
+  <!-- antdv 所需的时间解析库 -->
+  <script src="https://cdn.jsdelivr.net/npm/dayjs@1.11.4/dayjs.min.js"></script>
+  <!-- antdv UI 框架库   -->
+  <script src="https://cdn.jsdelivr.net/npm/ant-design-vue@3.2.10/dist/antd.js"></script>
+  <!-- xlsx excel 文件解析库 -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+  <!-- excel 导入解析核心代码 -->
+  <script src="./core.js"></script>
+  <!-- 测试数据 -->
+  <script src="./example-data.js"></script>
+
+  <script>
+    document.getElementById('loading') && document.getElementById('loading').remove()
+    const { reactive, ref, watch } = Vue
+    Vue.createApp({
+      components: {
+        'a-table': antd.Table,
+      },
+      setup() {
+        const columns = ref([]) // antdv 表格列的配置
+        const dataSource = ref([]) // antdv 表格数据源
+        const resultData = ref([]) // Excel 解析完成后的数据结构数组
+        const examples = reactive([example1, example2, example3, example4]) // 示例数据
+        const textKeyMapStr = ref('') // Excel 表头字符串与 dataKey 之间的映射 JSON 数据
+
+        // 下载示例 excel 文件
+        function downloadExampleExcel(fileUrl, fileName) {
+          const a = document.createElement('a')
+          a.download = `${fileName}excel.xls`
+          a.href = fileUrl
+          a.style.display = 'none'
+          document.body.appendChild(a)
+          a.click()
+          a.remove()
+        }
+
+        // 设置示例，快速获取示例代码及示例数据
+        function setExample(example) {
+          textKeyMapStr.value = JSON.stringify(example.textKeyMap, null, 4)
+          downloadExampleExcel(example.fileUrl, example.title)
+        }
+
+        // 获取 input 框上传的 excel 文件内容
+        const handleChange = (event) => {
+          let file = event.target.files[0]
+          const reader = new FileReader()
+          reader.onload = e => {
+            const sheets = []
+            const data = e.target && e.target.result
+            const workbook = XLSX.read(data, { type: 'array' })
+            for (const sheetName of workbook.SheetNames) {
+              const worksheet = workbook.Sheets[sheetName]
+              sheets.push(getAllCellRow(worksheet))
+            }
+            console.log('所有 sheets 单元格数据', sheets)
+            try {
+              const textKeyMap = JSON.parse(textKeyMapStr.value)
+              const { headerColumns, dataList, dataSourceList } = getSheetHeaderAndData(sheets[0], textKeyMap)
+              console.log('headerColumns', headerColumns) // table 表头结构
+              console.log('dataSourceList', dataSourceList) // table 表格数据
+              console.log('dataList', dataList) // 传递给后端的数据
+              columns.value = headerColumns
+              dataSource.value = dataSourceList
+              resultData.value = dataList
+            } catch (error) {
+              console.log(error)
+              alert('解析出错，请检查 textKeyMap 是否为正确的 JSON 数据')
+              alert(error)
+            }
+          }
+          reader.readAsArrayBuffer(file)
+        }
+
+        return {
+          examples,
+          columns,
+          dataSource,
+          textKeyMapStr,
+          resultData,
+          setExample,
+          handleChange,
+        }
+      }
+    }).mount('#app')
+  </script>
+</body>
+
+</html>

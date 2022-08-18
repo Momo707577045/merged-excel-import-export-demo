@@ -1,0 +1,302 @@
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+    content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <meta name="author" content="毛静文,Momo">
+  <meta name="keywords" content="Excel 复杂表头解析导出,毛静文的博客,Momo's Blog">
+  <meta name="description" content="Excel 复杂表头解析导出,合并单元格表头导出,合并单元格导出,多级表头合并">
+  <title>Excel 复杂表头导出解析示例</title>
+  <style>
+    /*全局设置*/
+    * {
+      user-select: none;
+    }
+
+    body::-webkit-scrollbar {
+      display: none
+    }
+
+    body,
+    html {
+      height: 100%;
+      text-align: center;
+    }
+
+    #app {
+      padding: 10px 30px 30px;
+      max-width: 1800px;
+      width: 100%;
+      height: 100%;
+      overflow: scroll;
+      text-align: center;
+      box-sizing: border-box;
+    }
+
+    #app::-webkit-scrollbar {
+      width: 0;
+    }
+
+    [v-cloak] {
+      display: none !important;
+    }
+
+    .button {
+      position: relative;
+      display: inline-block;
+      padding: 4px 8px;
+      font-size: 14px;
+      color: white;
+      cursor: pointer;
+      opacity: 1;
+      border-radius: 4px;
+      border: 1px solid #eeeeee;
+      background-color: #3D8AC7;
+      transition: 0.3s all;
+    }
+
+    .button:hover {
+      opacity: 0.9;
+    }
+
+    .tips {
+      text-align: left;
+      font-weight: bold;
+    }
+
+    .title {
+      max-width: 1100px;
+      width: 100%;
+      height: 60px;
+      line-height: 60px;
+      font-size: 34px;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    /* 数据输入容器 */
+    .input-content {
+      height: calc(100% - 60px);
+      display: flex;
+      align-items: center;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    /* 顶部示例按钮 */
+    .input-content .top {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .input-content .top .button {
+      margin-left: 10px;
+    }
+
+    /* 中部内容栏 */
+    .input-content .middle {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 10px;
+      width: 100%;
+    }
+
+    .input-content .middle .space {
+      position: relative;
+      margin: 0 20px;
+      width: 5px;
+      height: calc(100vh - 400px);
+    }
+
+    /* map 映射表输出 */
+    .input-content .textarea-item {
+      width: 100%;
+      height: 100%;
+    }
+
+    .input-content .textarea-item textarea {
+      width: 100%;
+      height: calc(100% - 30px);
+      border-color: #cccccc;
+      border-radius: 4px;
+      resize: none;
+      white-space: pre;
+    }
+
+    .input-content .bottom {
+      display: block;
+      width: 100%;
+      padding: 10px 0;
+      font-size: 20px;
+      text-align: center;
+    }
+
+    /* 输出结果界面 */
+    .output-content .textarea-item-group {
+      display: flex;
+      height: 500px;
+      justify-content: space-between;
+    }
+
+    .output-content .textarea-item-group .textarea-item {
+      width: 48%;
+    }
+
+    .output-content .textarea-item .tips {
+      padding: 10px 0 6px;
+    }
+
+    .output-content .textarea-item textarea {
+      width: 100%;
+      height: 100%;
+      border-color: #cccccc;
+      border-radius: 4px;
+      resize: none;
+      white-space: pre;
+    }
+  </style>
+</head>
+
+<body>
+  <section id="app">
+    <section class="title">Excel 复杂表头导出解析示例</section>
+    <!-- 数据输出面板 -->
+    <div class="input-content" v-if="cells.length === 0">
+      <div class="top">
+        <div class="tips">0: 如需快速测试可行性，可点击右侧示例按钮，快速获取测试数据</div>
+        <div>
+          <div class="button" v-for="example in examples" @click="setExample(example)">
+            {{example.title}}
+          </div>
+        </div>
+      </div>
+      <div class="middle">
+        <div class="textarea-item">
+          <div class="tips">1: 数据源数组</div>
+          <textarea :placeholder="`如：\r\b ${JSON.stringify(examples[2].data, null, 4)}`" v-model="dataStr"></textarea>
+        </div>
+        <div class="space"></div>
+        <div class="textarea-item">
+          <div class="tips">2: 「Excel 表头结构字符串」与「数据源结构 key」之间的映射关系 </div>
+          <textarea :placeholder="`如：\r\b ${JSON.stringify(examples[2].textKeyMaps, null, 4)}`"
+            v-model="textKeyMapsStr"></textarea>
+        </div>
+      </div>
+      <div class="bottom button" @click="exportExcel">导出 Excel</div>
+    </div>
+
+    <!-- Excel 数据导出后的展示面板 -->
+    <div class="output-content" v-else>
+      <div class="textarea-item-group">
+        <div class="textarea-item">
+          <div class="tips">解析后的 Excel 所有单元格数据</div>
+          <textarea disabled>{{ JSON.stringify(cells, null, 4) }}</textarea>
+        </div>
+        <div class="textarea-item">
+          <div class="tips">解析后的 Excel 合并单元格配置项数据</div>
+          <textarea disabled>{{ JSON.stringify(merges, null, 4) }}</textarea>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!--vue 前端框架-->
+  <script src="https://upyun.luckly-mjw.cn/lib/vue3.global.min.js"></script>
+  <!-- xlsx excel 文件解析库 -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script>
+    // 因后续的 xlsx-style 会复写 window.XLSX 对象，故在此先备份 xlsx.js 中的 XLSX 对象，以后续使用
+    window.OriginXLSX = window.XLSX
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx-style@0.8.13/dist/xlsx.core.min.js"></script>
+
+  <!-- excel 导出解析核心代码 -->
+  <script src="./core.js"></script>
+  <!-- 测试数据 -->
+  <script src="./example-data.js"></script>
+
+  <script>
+    document.getElementById('loading') && document.getElementById('loading').remove()
+    const { reactive, ref, watch } = Vue
+    Vue.createApp({
+      setup() {
+        const textKeyMapsStr = ref('') // Excel 表头字符串与 dataKey 之间的映射 JSON 数据
+        const dataStr = ref('') // 数据源 JSON 字符串
+        const cells = ref([]) // 转化为 Excel 后的所有单元格数据
+        const merges = ref([]) // 转化为 Excel 后的表头合并单元格配置
+        const examples = reactive([example1, example2, example3, example4]) // 示例数据
+
+        // 设置示例，快速获取示例代码及示例数据
+        function setExample(example) {
+          dataStr.value = JSON.stringify(example.data, null, 4)
+          textKeyMapsStr.value = JSON.stringify(example.textKeyMaps, null, 4)
+        }
+
+        // 导出 Excel 文件
+        function exportExcel() {
+          let data = []
+          let textKeyMaps = []
+          try {
+            data = JSON.parse(dataStr.value)
+          } catch (error) {
+            alert('数据源数组不正确，请检测是否为正确的 JSON 数据')
+            return
+          }
+          try {
+            textKeyMaps = JSON.parse(textKeyMapsStr.value)
+          } catch (error) {
+            alert('映射关系配置不正确，请检测是否为正确的 JSON 数据')
+            return
+          }
+
+          // 调用函数，将数据源转化为 Excel 单元格数据，及 Excel 表头合并单元格配置
+          const { headerMerges, cells: _cells } = transformDataToSheetCells(data, textKeyMaps)
+          merges.value = headerMerges
+          cells.value = _cells
+          console.log(_cells)
+          console.log(headerMerges)
+
+          const worksheet = window.OriginXLSX.utils.aoa_to_sheet(_cells)
+          worksheet['!merges'] = headerMerges
+
+          // 所有单元格居中显示
+          Object.values(worksheet).forEach(cell => {
+            if (cell.v) {
+              cell.s = {
+                alignment: {
+                  horizontal: 'center',
+                  vertical: 'center',
+                },
+              }
+            }
+          })
+
+          toStyleXlsx({
+            filename: `Excel导出示例.xlsx`,
+            worksheet
+          })
+          alert('Excel 文件已导出，请注意文件下载')
+        }
+
+        return {
+          examples,
+          textKeyMapsStr,
+          dataStr,
+          merges,
+          cells,
+          setExample,
+          exportExcel,
+        }
+      }
+    }).mount('#app')
+  </script>
+</body>
+
+</html>
