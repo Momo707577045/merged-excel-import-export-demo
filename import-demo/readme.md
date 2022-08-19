@@ -28,7 +28,7 @@
   
   ![](https://upyun.luckly-mjw.cn/Assets/merged-excel-import-export-demo/007.png)
   
-  - "value" 为需要转换的目标数据结构的层级关系。「baseInfo.age」的意思是，将 Excel 表第二行的数据，转化为目标对象中.baseInfo.age 这个属性。
+  - "value" 为需要转换的目标数据结构的层级关系。「baseInfo.age」的意思是，将 Excel 表第二列的数据，转化为目标对象中.baseInfo.age 这个属性。
   
   ![](https://upyun.luckly-mjw.cn/Assets/merged-excel-import-export-demo/008.png)
   
@@ -272,7 +272,7 @@ function transformObjToDotStrObj(targetObj) {
 
 - *上述源码确实不太好懂，不太好描述，如果本项目确实能帮助到小伙伴，而小伙伴对源码也感兴趣的话。可以提 issues，我再后补运行逻辑详解及配图*
 
-### 全部核心源码
+### [全部核心源码](https://github.com/Momo707577045/merged-excel-import-export-demo/tree/master/import-demo)
 
 ```
 /**
@@ -457,7 +457,9 @@ function getSheetHeaderAndData(sheet, textKeyMap) {
 }
 ```
 
+### [这里还有 Excel 合并单元格复杂表头导出解析示例](https://blog.luckly-mjw.cn/tool-show/merged-excel-import-export-demo/export-demo/index.html)
 
+![](https://upyun.luckly-mjw.cn/Assets/merged-excel-import-export-demo/021.png)
 
 
 
