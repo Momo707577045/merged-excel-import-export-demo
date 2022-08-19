@@ -9,6 +9,7 @@
   <meta name="keywords" content="Excel 复杂表头导入解析,毛静文的博客,Momo's Blog">
   <meta name="description" content="Excel 复杂表头解析,解析合并单元格表头,合并单元格解析,多级表头解析">
   <title>Excel 复杂表头导入解析示例</title>
+  <link rel="stylesheet" href="https://upyun.luckly-mjw.cn/lib/antd.min.css">
   <style>
     /*全局设置*/
     * {
@@ -74,6 +75,60 @@
       font-size: 34px;
       text-align: center;
       font-weight: bold;
+    }
+
+    .link .help {
+      position: fixed;
+      right: 50px;
+      top: 30px;
+      width: 30px;
+      height: 30px;
+      color: #666666;
+      z-index: 2;
+      line-height: 30px;
+      font-weight: bolder;
+      border-radius: 50%;
+      border: 1px solid rgba(27, 31, 35, .2);
+      cursor: pointer;
+      background-color: #eff3f6;
+      background-image: linear-gradient(-180deg, #fafbfc, #eff3f6 90%);
+    }
+
+    .link .github,
+    .link .export,
+    .link .other {
+      position: fixed;
+      right: 50px;
+      background-color: #eff3f6;
+      background-image: linear-gradient(-180deg, #fafbfc, #eff3f6 90%);
+      color: #24292e;
+      border: 1px solid rgba(27, 31, 35, .2);
+      border-radius: 3px;
+      cursor: pointer;
+      display: inline-block;
+      font-size: 14px;
+      font-weight: 600;
+      line-height: 20px;
+      padding: 6px 12px;
+      z-index: 99;
+    }
+
+    .link .github:hover,
+    .link .export:hover,
+    .link .other:hover {
+      opacity: 0.9;
+    }
+
+    .link .github {
+      bottom: 110px;
+    }
+
+    .link .export {
+      bottom: 30px;
+    }
+
+    .link .other {
+      bottom: 70px;
     }
 
     /* 输入界面 */
@@ -180,11 +235,20 @@
       white-space: pre;
     }
   </style>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ant-design-vue@3.2.10/dist/antd.css">
+  
 </head>
 
 <body>
   <section id="app">
+
+    <section class="link">
+      <a class="help" target="_blank" href="https://segmentfault.com/a/1190000042346917">?</a>
+      <a class="github" target="_blank"
+        href="https://github.com/Momo707577045/merged-excel-import-export-demo/tree/master/import-demo">github</a>
+        <a class="export" target="_blank" href="https://blog.luckly-mjw.cn/tool-show/merged-excel-import-export-demo/export-demo/index.html">Excel 导出实例</a>
+        <a class="other" target="_blank" href="http://blog.luckly-mjw.cn/tool-show/index.html">其他实用工具</a>
+    </section>
+
     <section class="title">Excel 复杂表头导入解析示例</section>
     <!-- 数据输入面板 -->
     <div class="input-content" v-if="dataSource.length === 0">
@@ -237,11 +301,11 @@
   <!-- vue3 库 -->
   <script src="https://upyun.luckly-mjw.cn/lib/vue3.global.min.js"></script>
   <!-- antdv 所需的时间解析库 -->
-  <script src="https://cdn.jsdelivr.net/npm/dayjs@1.11.4/dayjs.min.js"></script>
+  <script src="https://upyun.luckly-mjw.cn/lib/dayjs.min.js"></script>
   <!-- antdv UI 框架库   -->
-  <script src="https://cdn.jsdelivr.net/npm/ant-design-vue@3.2.10/dist/antd.js"></script>
+  <script src="https://upyun.luckly-mjw.cn/lib/antd.js"></script>
   <!-- xlsx excel 文件解析库 -->
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="https://upyun.luckly-mjw.cn/lib/xlsx.full.min.js"></script>
 
   <!-- excel 导入解析核心代码 -->
   <script src="./core.js"></script>
@@ -289,7 +353,7 @@
             const workbook = XLSX.read(data, { type: 'array' })
             for (const sheetName of workbook.SheetNames) {
               const worksheet = workbook.Sheets[sheetName]
-              sheets.push(getAllCellRow(worksheet))
+              sheets.push(getSheetCells(worksheet))
             }
             console.log('所有 sheets 单元格数据', sheets)
             try {

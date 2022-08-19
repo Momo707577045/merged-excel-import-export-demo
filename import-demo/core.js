@@ -1,7 +1,7 @@
 /**
- * 解析点拼接的字符串对象
- * @param dotStrObj 点拼接的字符串对象
- * @returns 将点操作符对象，转化后的对象
+ * 将以点拼接的扁平字符串对象，解析为具有深度的对象
+ * @param dotStrObj 点拼接的扁平化字符串对象
+ * @returns 具有深度的对象
  */
 function parseDotStrObjToObj(dotStrObj) {
   const resultObj = {}
@@ -16,12 +16,11 @@ function parseDotStrObjToObj(dotStrObj) {
 }
 
 /**
- * 将普通对象扁平化，使用点符合拼接对象层级
- * @param targetObj 普通对象
+ * 将具有深度的对象扁平化，变成以点拼接的扁平字符串对象
+ * @param targetObj 具有深度的对象
  * @returns 扁平化后，由点操作符拼接的对象
  */
 function transformObjToDotStrObj(targetObj) {
-  // targetObj = Object.create(targetObj)
   const resultObj = {}
   function transform(currentObj, preKeys) {
     Object.keys(currentObj).forEach(key => {
@@ -36,37 +35,34 @@ function transformObjToDotStrObj(targetObj) {
   return resultObj
 }
 
-// 获取所有单元格数据
-function getAllCellRow(sheet) {
+/**
+ * 获取所有单元格数据
+ * @param sheet sheet 对象
+ * @returns 该 sheet 所有单元格数据
+ */
+function getSheetCells(sheet) {
   if (!sheet || !sheet['!ref']) {
     return []
   }
-  // A3:B7=>{s:{c:0, r:2}, e:{c:1, r:6}}
   const range = XLSX.utils.decode_range(sheet['!ref'])
 
-
-  /* start in the first row */
-  let allCell = []
-  for (let R = range.s.r; R <= range.e.r; ++R) {
-    let newRaw = []
-    allCell.push(newRaw)
-    for (let C = range.s.c; C <= range.e.c; ++C) {
-
-      /* walk every column in the range */
+  let allCells = []
+  for (let rowIndex = range.s.r; rowIndex <= range.e.r; ++rowIndex) {
+    let newRow = []
+    allCells.push(newRow)
+    for (let colIndex = range.s.c; colIndex <= range.e.c; ++colIndex) {
       const cell = sheet[XLSX.utils.encode_cell({
-        c: C,
-        r: R
+        c: colIndex,
+        r: rowIndex
       })]
-
-      /* find the cell in the first row */
-      let hdr = '' // <-- replace with your desired default
+      let cellContent = ''
       if (cell && cell.t) {
-        hdr = XLSX.utils.format_cell(cell)
+        cellContent = XLSX.utils.format_cell(cell)
       }
-      newRaw.push(hdr)
+      newRow.push(cellContent)
     }
   }
-  return allCell
+  return allCells
 }
 
 /**
