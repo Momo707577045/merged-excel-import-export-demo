@@ -1,64 +1,104 @@
-![](https://upyun.luckly-mjw.cn/Assets/merged-excel-import-export-demo/001.png)
+!
+[](https://upyun.luckly-mjw.cn/Assets/merged-excel-import-export-demo/001.png)
+
 
 ### 项目功能
 - 任意层级合并单元格复杂表头解析
-![](https://upyun.luckly-mjw.cn/Assets/merged-excel-import-export-demo/002.png)
+https://upyun.luckly-mjw.cn/Assets/merged-excel-import-export-demo(https://upyun.luckly-mjw.cn/Assets/merged-excel-import-export-demo/002.png)
 - 自动转化为目标层级的数据结构
+
 ![](https://upyun.luckly-mjw.cn/Assets/merged-excel-import-export-demo/003.png)
+
 - 自动生成基于 antdv 的 table 列配置数据 columns 及对于数据源 dataSource。在页面端复现 Excel 效果。
+
 ![](https://upyun.luckly-mjw.cn/Assets/merged-excel-import-export-demo/004.png)
+
 
 ### [在线示例](https://blog.luckly-mjw.cn/tool-show/merged-excel-import-export-demo/import-demo/index.html)
 - 步骤零：如需快速测试，可点击顶部的示例按钮，可快速填充测试数据，并自动下载对应的 Excel 文件，点击上传 Excel 文件即可复现整个使用流程
+
 ![](https://upyun.luckly-mjw.cn/Assets/merged-excel-import-export-demo/005.png)
+
 - 步骤一：输入「Excel 表头结构字符串」与「目标数据结构 key」之间的映射关系
+  
   ![](https://upyun.luckly-mjw.cn/Assets/merged-excel-import-export-demo/006.png)
+  
   - "key" 为 Excel 表头，每一列的所处层级关系。如「基础信息.年龄」对应的就是 Excel 表在第二列中的关系，第一级是「基础信息」，第二级是「年龄」
+  
   ![](https://upyun.luckly-mjw.cn/Assets/merged-excel-import-export-demo/007.png)
+  
   - "value" 为需要转换的目标数据结构的层级关系。「baseInfo.age」的意思是，将 Excel 表第二行的数据，转化为目标对象中.baseInfo.age 这个属性。
+  
   ![](https://upyun.luckly-mjw.cn/Assets/merged-excel-import-export-demo/008.png)
+  
   - 【特别注意一】"key":"value" 的映射关系，没有顺序的要求，无需要按 Excel 表的每一列的数据进行排序。
+  
   ![](https://upyun.luckly-mjw.cn/Assets/merged-excel-import-export-demo/009.png)
+  
   - 【特别注意二】Excel 表的层级映射关系与目标对象的层级映射关系，没有强制约束和要求。如Excel 中的 "手机号"，只有一层结构，但完全可以转化为目标对象中的 "contact.phone" 二级结构。反之亦然。
+  
   ![](https://upyun.luckly-mjw.cn/Assets/merged-excel-import-export-demo/010.png)
+  
 - 步骤二：点击右侧，上传对应的 Excel 文件，即可完成 Excel 解析。
+  
   ![](https://upyun.luckly-mjw.cn/Assets/merged-excel-import-export-demo/011.png)
+  
 
 ### 解析后的页面介绍
+
 ![](https://upyun.luckly-mjw.cn/Assets/merged-excel-import-export-demo/013.png)
+
 - 顶部为基于 antdv 的 table 组件的复现效果。复现 Excel 表格中，合并完单元格后的效果。 table 组件用到的 columns 配置，及 dataSource 数据，均由解析函数一并返回。无需要开发者二次开发及维护。
+  
   ![](https://upyun.luckly-mjw.cn/Assets/merged-excel-import-export-demo/012.png)
+  
 - 底部为解析函数解析后返回的三个数据结果。分别为
   - 解析后的 antdv columns 表格列的配置项，直接传递给 table 组件的 columns 属性使用。
   - 解析后的 antdv dataSource 表格数据源，直接传递给 table 组件的 data-source 属性使用。
+  
   ![](https://upyun.luckly-mjw.cn/Assets/merged-excel-import-export-demo/004.png)
+  
   - 解析后的目标数据结构数组。即根据步骤一设置的映射表，将 Excel 各个单元格数据，转换后的目标数据结构。一般情况下，该数据结构，即为传递给后端的数据结构。
+  
   ![](https://upyun.luckly-mjw.cn/Assets/merged-excel-import-export-demo/003.png)
+  
 
 
 ### 背景，解决什么问题
 - 直接使用 SheetJS 的 XLSX.utils.sheet_to_json 函数进行 excel 数据转化时，仅支持一行表头的 Excel 表格数据解析（只识别 Excel 内容的第一行作为标题），无法识别表头进行过合并单元格的 Excel 数据解析
+
 ![](https://upyun.luckly-mjw.cn/Assets/merged-excel-import-export-demo/014.png)
+
 - sheet_to_json 转化的 JSON 数据，是以中文为 key 的对象，不符合编程习惯，需要开发者手动进行数据中英文 key 转换，自行转换为目标数据结构。
+
 ![](https://upyun.luckly-mjw.cn/Assets/merged-excel-import-export-demo/015.png)
+
 - excel 表头的组织与复现，进行 Excel 表上传时，通常需要在前端展现表格内容，给用户需要数据复现及确认。这个过程需要开发者手动组织完成。
 - 最少知识原则，提供最小化 demo 示例，没有脚手架，无需要安装 npm 依赖包。纯 html + js 文件。快速测试代码可行性。边改边测进行二次开发。
+
 ![](https://upyun.luckly-mjw.cn/Assets/merged-excel-import-export-demo/019.png)
+
 
 
 ### 具体函数使用方式
 - 示例遵循最少知识原则，项目中的 core.js 文件，即为转换函数所在文件。里面一共不到 200 行代码。可以直接粘贴复制到所需项目里面。
+
 ![](https://upyun.luckly-mjw.cn/Assets/merged-excel-import-export-demo/016.png)
+
 - 示例直接使用的 script 文件整体引入的方式。所以迁移到基于 npm 的项目中时，需要将 core.js 中的 ‘XLSX.utils’ 全局变量使用方式，改为通过 `import { utils } from 'xlsx'` 的使用方式。
+
 ![](https://upyun.luckly-mjw.cn/Assets/merged-excel-import-export-demo/017.png)
+
 - 如果本项目确实有帮助到小伙伴，小伙伴有需求的话，可以在 github 中提 issues，有需要的话，将补充基于 npm 的版本，以及带上 ts 类型约束的版本。
+
 ![](https://upyun.luckly-mjw.cn/Assets/merged-excel-import-export-demo/018.png)
+
 
 ### 转换函数运行逻辑
 - 获取 Excel 所有单元格数据
   - 借用 SheetJS 的 'encode_cell' 方法，及 'format_cell' 方法，遍历获取每个 sheet 中，每个单元格的数据。
 
-  ```
+```
 /**
  * 获取所有单元格数据
  * @param sheet sheet 对象
@@ -88,12 +128,12 @@ function getSheetCells(sheet) {
   }
   return allCells
 }
-  ```
+```
 
 - 根据 map 映射表，获取 Excel 表头行数
   - 遍历 map 中的每个中文 key，根据'点'关键字拆分层级，找到 Excel 最高层级。从而得到 Excel 表头的行数。区分那些行是表头，那些行是数据。
   
-  ```
+```
   // 获取菜单项在 Excel 中所占行数
   function getHeaderRowNum(textKeyMap) {
     let maxLevel = 1 // 最高层级
@@ -103,7 +143,7 @@ function getSheetCells(sheet) {
     return maxLevel
   }
   const headerRowNum = getHeaderRowNum(textKeyMap)
-  ```
+```
 
 - 通过容器，递归解析 Excel 表头配置树装数据结构
   - 通过 lastHeaderLevelColumns 遍历，保存在 Excel 中的每一行的最新容器。
@@ -111,7 +151,8 @@ function getSheetCells(sheet) {
   - 从而递归解析，得到 table 表头层级结构数组。
 - 使用索引映射表，将 Excel 表头对象格与 Excel 所在行索引进行挂钩
   - 在递归解析表头层级结构时，通过 columnIndexObjMap，记录当前表头数据，所在列。 
-  ```
+
+```
 let headerColumns = [] // 收集 table 组件中，表头 columns 的对象数组结构
   const lastHeaderLevelColumns = [] // 最近一个 columns，用于收集单元格子表头的内容
   const textValueMaps = [] // 以中文字符串为 key 的对象数组，用于收集表格中的数据
@@ -139,13 +180,13 @@ let headerColumns = [] // 收集 table 组件中，表头 columns 的对象数�
       }
     })
   }
-
 ```
   
 - 利用该索引表，遍历 Excel 数据表的每一行，快速生成每行 Excel 的数据结构
   - 利用 columnIndexObjMap，遍历 Excel 数据表的每一行，往 headerColumns 配置中，插入 value 值，将其设置为特定行，对应列的数据。
   - 通过 Object.create 从 headerColumns 中生成一个对象副本。
-  ```
+
+```
 // 将以数组形式记录的对象信息，转化为正常的对象结构
   function transformListToObj(listObjs) {
     const resultObj = {}
@@ -172,6 +213,7 @@ let headerColumns = [] // 收集 table 组件中，表头 columns 的对象数�
   })
 ```
 - 将 JSON 数据结构，进行 key map 映射解析，生成目标数据结构
+
 ```
 /**
  * 将以点拼接的扁平字符串对象，解析为具有深度的对象
@@ -221,14 +263,16 @@ function transformObjToDotStrObj(targetObj) {
     const keyDataList = keyDotStrDataList.map(keyDotStrData => parseDotStrObjToObj(keyDotStrData))
     return keyDataList
   }
-
 ```
 
 - 返回给 antdv 复现 table 用的 columns 配置，dataSource 表格数据，以及 dataList 后端 JSON 数据
+
 ![](https://upyun.luckly-mjw.cn/Assets/merged-excel-import-export-demo/020.png)
+
 - *上述源码确实不太好懂，不太好描述，如果本项目确实能帮助到小伙伴，而小伙伴对源码也感兴趣的话。可以提 issues，我再后补运行逻辑详解及配图*
 
 ### 全部核心源码
+
 ```
 /**
  * 将以点拼接的扁平字符串对象，解析为具有深度的对象
@@ -410,7 +454,6 @@ function getSheetHeaderAndData(sheet, textKeyMap) {
     dataSourceList: dataSource,
   }
 }
-
 ```
 
 
