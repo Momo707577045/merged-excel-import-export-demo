@@ -4,7 +4,7 @@
 ### 项目功能
 - 任意层级合并单元格复杂表头解析
 
-![](https://upyun.luckly-mjw.cn/Assets/merged-excel-import-export-demo(https://upyun.luckly-mjw.cn/Assets/merged-excel-import-export-demo/002.png)
+![](https://upyun.luckly-mjw.cn/Assets/merged-excel-import-export-demo/002.png)
 
 - 自动转化为目标层级的数据结构
 
